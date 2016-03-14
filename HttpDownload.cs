@@ -201,7 +201,7 @@ namespace Tsul.Network
 		///		null  if resource is temporary unavailable, and we should try again later (exception occurs);
 		///		false if resource is unavailable (exception occurs).
 		/// </returns>
-		static public bool? DownloadFile(string url, string path)
+		static public bool? DownloadFile(string url, string path, Action<long,long> onProgress)
 		{
 			if (LogInfo)
 				Log.WriteLine("Downloading: {1} <= {0}", url, path);
@@ -330,6 +330,8 @@ namespace Tsul.Network
 					{
 						fs.Write(buf, 0, nr);
 						written += nr;
+						if (onProgress != null)
+							onProgress(written, remoteLength);
 					}
 				}
 			}
