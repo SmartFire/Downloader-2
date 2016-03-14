@@ -25,7 +25,7 @@ namespace Tsul.Network
 			return (UnixTimeOrigin + new TimeSpan(0, 0, unixTime)).ToLocalTime();
 		}
 
-		static readonly string downloaderExtension = "gf#";
+		static readonly string downloaderExtension = "hgf#";
 		static readonly Regex rxDownloadingFileName = new Regex(@"^(?<fname>.+)\.(?<len>[-+a-zA-Z0-9]+)\.(?<mod>[-+a-zA-Z0-9]+)\." + downloaderExtension, RegexOptions.Compiled);
 		static readonly Regex rxContentRange = new Regex(@"^bytes\s+(?:\*|(?<first>\d+)-(?<last>\d+))/(?:\*|(?<total>\d+))$", RegexOptions.Compiled);
 
