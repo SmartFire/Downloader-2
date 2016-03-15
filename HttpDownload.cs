@@ -201,7 +201,7 @@ namespace Tsul.Network
 		///		null  if resource is temporary unavailable, and we should try again later (exception occurs);
 		///		false if resource is unavailable (exception occurs).
 		/// </returns>
-		static public bool? DownloadFile(string url, string path, Action<long,long> onProgress)
+		static public bool? DownloadFile(string url, string path, Action<long,long> onProgress = null)
 		{
 			if (LogInfo)
 				Log.WriteLine("Downloading: {1} <= {0}", url, path);
@@ -241,7 +241,7 @@ namespace Tsul.Network
 					else
 						Log.WriteLine("The remote date header 'Last-Modified' is absent.");
 				}
-				Log.WriteLine("You should delete this local file manually.");
+				Log.WriteLine("File '{0}' already exists. You should delete this local file manually.", path);
 				return false;
 			}
 
@@ -262,10 +262,13 @@ namespace Tsul.Network
 					File.Delete(partName);
 			}
 
-			if (written > 0)
-				Log.WriteLine("Resuming download from {0} MB ({1} bytes) ...", written >> 20, written);
-			else
-				Log.WriteLine("Starting download ...");
+			if (LogInfo)
+			{
+				if (written > 0)
+					Log.WriteLine("Resuming download from {0} MB ({1} bytes) ...", written >> 20, written);
+				else
+					Log.WriteLine("Starting download ...");
+			}
 
 			var q = (HttpWebRequest)WebRequest.Create(url);
 			if (written > 0)
@@ -320,8 +323,7 @@ namespace Tsul.Network
 						Log.WriteLine("Error: remote file date changed: was {0}, now it is {1} bytes", remoteLastMod, rmod);
 						return null;
 					}
-
-					if (remoteLength >= 0)
+					if (remoteLength >= 0 && LogInfo)
 						Log.WriteLine("Left to get: {0} MB ({1} bytes, {2})", rlen >> 20, rlen,
 							((double)rlen / remoteLength).ToString("P2", CultureInfo.InvariantCulture));
 					byte[] buf = new byte[8 << 10];
@@ -348,7 +350,7 @@ namespace Tsul.Network
 			}
 
 			if (remoteLastMod != DateTime.MinValue)
-				(new FileInfo(partName)).LastWriteTimeUtc = remoteLastMod;
+				(new FileInfo(partName)).LastWriteTime = remoteLastMod;
 
 			File.Move(partName, path);
 
